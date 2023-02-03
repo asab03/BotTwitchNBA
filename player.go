@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"strings"
 )
 
 type JsonPlayer struct {
@@ -57,9 +58,12 @@ func main(){
 
 
 	var player string
-	fmt.Println("choissisez votre joueur :")
+	var firstName string
+	fmt.Println("Prenom du joueur :")
+	fmt.Scan(&firstName)
+	fmt.Println("Nom du joueur :")
 	fmt.Scan(&player)
-	fmt.Println(player) 
+	fmt.Println(firstName, player) 
 
 	url := "https://api-nba-v1.p.rapidapi.com/players?search=" + player
 
@@ -82,13 +86,21 @@ func main(){
     }
 
 	//fmt.Println(PrettyPrint(result))
+	var playerId int
+	var playerFirstName string
+	var playerLastName string
 
-	for _, rec := range result.Response{
-		fmt.Println(rec.ID)
-		fmt.Println(rec.Firstname)
-		fmt.Println(rec.Lastname)
+	for _, rec := range result.Response{		
+		v := strings.EqualFold(firstName, rec.Firstname)
+		if v != false {
+			playerFirstName = rec.Firstname
+			playerId = rec.ID
+			playerLastName = rec.Lastname
+		}
 	}
+	fmt.Println(playerId, playerFirstName, playerLastName)
 
+	
 	//recherche les stats dans l'api
 
 	//affiche les stats
