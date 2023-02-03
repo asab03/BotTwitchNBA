@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -128,6 +129,56 @@ type JsonMatchOfTheDay struct {
 	} `json:"response"`
 }
 
+type JsonStatsMVP struct {
+	Get        string `json:"get"`
+	Parameters struct {
+		Game   string `json:"game"`
+		ID     string `json:"id"`
+		Season string `json:"season"`
+	} `json:"parameters"`
+	Errors   []interface{} `json:"errors"`
+	Results  int           `json:"results"`
+	Response []struct {
+		Player struct {
+			ID        int    `json:"id"`
+			Firstname string `json:"firstname"`
+			Lastname  string `json:"lastname"`
+		} `json:"player"`
+		Team struct {
+			ID       int    `json:"id"`
+			Name     string `json:"name"`
+			Nickname string `json:"nickname"`
+			Code     string `json:"code"`
+			Logo     string `json:"logo"`
+		} `json:"team"`
+		Game struct {
+			ID int `json:"id"`
+		} `json:"game"`
+		Points    int         `json:"points"`
+		Pos       string      `json:"pos"`
+		Min       string      `json:"min"`
+		Fgm       int         `json:"fgm"`
+		Fga       int         `json:"fga"`
+		Fgp       string      `json:"fgp"`
+		Ftm       int         `json:"ftm"`
+		Fta       int         `json:"fta"`
+		Ftp       string      `json:"ftp"`
+		Tpm       int         `json:"tpm"`
+		Tpa       int         `json:"tpa"`
+		Tpp       string      `json:"tpp"`
+		OffReb    int         `json:"offReb"`
+		DefReb    int         `json:"defReb"`
+		TotReb    int         `json:"totReb"`
+		Assists   int         `json:"assists"`
+		PFouls    int         `json:"pFouls"`
+		Steals    int         `json:"steals"`
+		Turnovers int         `json:"turnovers"`
+		Blocks    int         `json:"blocks"`
+		PlusMinus string      `json:"plusMinus"`
+		Comment   interface{} `json:"comment"`
+	} `json:"response"`
+}
+
 
 func PrettyPrint(i interface{}) string {
     s, _ := json.MarshalIndent(i, "", "\t")
@@ -143,7 +194,6 @@ func main(){
 	fmt.Scan(&firstName)
 	fmt.Println("Nom du joueur :")
 	fmt.Scan(&player)
-	fmt.Println(firstName, player) 
 
 	//recherche du joueur dans l'api pour definir son Id
 
@@ -183,16 +233,11 @@ func main(){
 	fmt.Println(playerId, playerFirstName, playerLastName)
 
 	//recherche du match dans l'api pour obtenir Id
-	
+	t := time.Now()
 	dt :=  time.Now().Local().Format("2006-01-02")
 	
 
-	fmt.Println(dt)
-	
-
 	url2 := "https://api-nba-v1.p.rapidapi.com/games?date=" + dt
-
-	fmt.Println(url2)
 
 	req2, _ := http.NewRequest("GET", url2, nil)
 
@@ -217,10 +262,57 @@ func main(){
 		fmt.Println("Visiteur :" , rec2.Teams.Visitors.Name, "score :", rec2.Scores.Visitors.Points)
 		fmt.Println("Domicile :" , rec2.Teams.Home.Name, "score :", rec2.Scores.Home.Points)
 	}
+	
 
-	//recherche les stats dans l'api
+	//recherche les stats du joueurs sur le match en question
+
+	var gameId string
+	fmt.Println("choisissez l'Id du match : ")
+	fmt.Scan(&gameId)
+
+	PlayerId := strconv.Itoa(playerId)
+	y := t.Year()-1
+	year := strconv.Itoa(y)
+	
+	url3 := "https://api-nba-v1.p.rapidapi.com/players/statistics?id=" + PlayerId + "&game=" + gameId + "&season=" + year
+
+	req3, _ := http.NewRequest("GET", url3, nil)
+
+	req3.Header.Add("X-RapidAPI-Key", "de18451645msh049760fce527e8fp1e555ejsn4eb253213e47")
+	req3.Header.Add("X-RapidAPI-Host", "api-nba-v1.p.rapidapi.com")
+
+	res3, _ := http.DefaultClient.Do(req3)
+
+	defer res3.Body.Close()
+	body3, _ := ioutil.ReadAll(res3.Body)
+
+	fmt.Println(res3)
+	fmt.Println(string(body3))
+
+	var result3 JsonStatsMVP
+    if err3 := json.Unmarshal(body3, &result3); err3 != nil { 
+        fmt.Println("Can not unmarshal JSON")
+    }
+
+	for _, rec3 := range result3.Response{
+		fmt.Println("Points :", rec3.Points, "pts")		
+		fmt.Println("Minutes :" , rec3.Min, "min")
+		fmt.Println("Rebonds :" ,rec3.TotReb, "rebonds" )
+		fmt.Println("Steals :", rec3.Steals, "recuperations")
+		fmt.Println("Fautes :", rec3.PFouls, "fautes")
+		fmt.Println("Assists :", rec3.Assists, "assists")
+	}
 
 	//affiche les stats
+
+	for _, rec3 := range result3.Response{
+		fmt.Println("Points :", rec3.Points, "pts")		
+		fmt.Println("Minutes :" , rec3.Min, "min")
+		fmt.Println("Rebonds :" ,rec3.TotReb, "rebonds" )
+		fmt.Println("Steals :", rec3.Steals, "recuperations")
+		fmt.Println("Fautes :", rec3.PFouls, "fautes")
+		fmt.Println("Assists :", rec3.Assists, "assists")
+	}
 
 	//ecoute le chat
 
