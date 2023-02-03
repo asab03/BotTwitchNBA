@@ -1,0 +1,26 @@
+package main
+
+import (
+	"fmt"
+	"net/http"
+	"io/ioutil"
+)
+
+func main() {
+
+	url := "https://api-nba-v1.p.rapidapi.com/players/statistics?id=" + playerId + "&game=" + GameId + "&season=" + year
+
+	req, _ := http.NewRequest("GET", url, nil)
+
+	req.Header.Add("X-RapidAPI-Key", "de18451645msh049760fce527e8fp1e555ejsn4eb253213e47")
+	req.Header.Add("X-RapidAPI-Host", "api-nba-v1.p.rapidapi.com")
+
+	res, _ := http.DefaultClient.Do(req)
+
+	defer res.Body.Close()
+	body, _ := ioutil.ReadAll(res.Body)
+
+	fmt.Println(res)
+	fmt.Println(string(body))
+
+}
