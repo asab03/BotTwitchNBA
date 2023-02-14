@@ -5,9 +5,15 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"os"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
+	parser "twitchbot/nbabot/Parser"
+	readmsg "twitchbot/nbabot/ReadMsg"
+	"twitchbot/nbabot/connect"
+	writemessages "twitchbot/nbabot/writeMessages"
 )
 
 type JsonPlayer struct {
@@ -313,10 +319,41 @@ func main(){
 		fmt.Println("Fautes :", rec3.PFouls, "fautes")
 		fmt.Println("Assists :", rec3.Assists, "assists")
 	}
+	//Connection Twitch 
 
-	//ecoute le chat
+	conn := connect.Connect()
+    msgsChan := readmsg.ReadMessages(conn)
+    parsedChan := parser.Parse(msgsChan)
+    writemessages.WriteMessages(conn, os.Stdin)
 
-	//affiche le pseudo du viewer 
+	//ecoute le chat et affiche le viewer gagnant
+
+	wg:= sync.WaitGroup{}
+    wg.Add(1)
+
+    go func(){
+        for msg := range parsedChan{
+            numberOfColons := strings.Count(msg, ":")
+            if numberOfColons >= 2 {
+				s := strings.Split(msg, ":")
+				user := strings.Split(s[1], ",")[0]
+				messageData := s[2]
+				
+				if strings.Contains(messageData, playerLastName){
+			        fmt.Fprintf(conn, "PRIVMSG #narvalo03 :@%s à gagner !\r\n", user)
+				} else {
+                    fmt.Println(msg)
+                }			
+				
+				
+			}
+            
+            
+        }
+    }()
+    
+
+    wg.Wait()
 
 	//affiche la photo du joueur
 }
