@@ -24,10 +24,12 @@ func Connect() io.ReadWriter{
     }
 
 
+
     fmt.Fprintf(conn, "PASS %s \r\n", os.Getenv("TWITCH_AUTH") )
     fmt.Fprintf(conn, "NICK %s \r\n", os.Getenv("BOTNAME"))
     fmt.Fprintf(conn, "JOIN #%s \r\n", os.Getenv("CHANNEL"))
     fmt.Fprintf(conn, "PRIVMSG #%s :Hello !\r\n", os.Getenv("CHANNEL"))
+
 
 	return conn
 }
