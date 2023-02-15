@@ -1,6 +1,6 @@
 # Presentation 
 
-L'application a pour objectif de faire deviner à sun chat twitch un joueur NBA en fonction de ses lignes de stats de son match de la nuit passée.
+L'application a pour objectif de faire deviner à un chat twitch un joueur NBA en fonction de ses lignes de stats de son match de la nuit passée.
 Pour cela, le programme récupère les informations grâce à un api et il affiche les stats du joueur demandé par le streamer.
 
 Par la suite le programme se connecte au chat du stream et écoute les messages des viewers. Dès qu'un utilisateur donne la bonne réponse, le programme envoie un message dans le chat pour désigner le vainqueur.
