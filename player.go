@@ -10,10 +10,12 @@ import (
 	"strings"
 	"sync"
 	"time"
-	parser "twitchbot/nbabot/Parser"
-	readmsg "twitchbot/nbabot/ReadMsg"
-	"twitchbot/nbabot/connect"
-	writemessages "twitchbot/nbabot/writeMessages"
+	parser "twitchbot/nbabot/pkg/Parser"
+	readmsg "twitchbot/nbabot/pkg/ReadMsg"
+	"twitchbot/nbabot/pkg/connect"
+	writemessages "twitchbot/nbabot/pkg/writeMessages"
+
+	"github.com/joho/godotenv"
 )
 
 type JsonPlayer struct {
@@ -191,8 +193,11 @@ func PrettyPrint(i interface{}) string {
     return string(s)
 }
 
+const api_url string = "api-nba-v1.p.rapidapi.com"
+
 func main(){
 
+	godotenv.Load()
 	// Definir le joueur à rechercher
 	var player string
 	var firstName string
@@ -207,8 +212,8 @@ func main(){
 
 	req, _ := http.NewRequest("GET", url, nil)
 
-	req.Header.Add("X-RapidAPI-Key", "de18451645msh049760fce527e8fp1e555ejsn4eb253213e47")
-	req.Header.Add("X-RapidAPI-Host", "api-nba-v1.p.rapidapi.com")
+	req.Header.Add("X-RapidAPI-Key", os.Getenv("API_KEY"))
+	req.Header.Add("X-RapidAPI-Host", api_url)
 
 	res, _ := http.DefaultClient.Do(req)
 
@@ -247,8 +252,8 @@ func main(){
 
 	req2, _ := http.NewRequest("GET", url2, nil)
 
-	req2.Header.Add("X-RapidAPI-Key", "de18451645msh049760fce527e8fp1e555ejsn4eb253213e47")
-	req2.Header.Add("X-RapidAPI-Host", "api-nba-v1.p.rapidapi.com")
+	req2.Header.Add("X-RapidAPI-Key", os.Getenv("API_KEY"))
+	req2.Header.Add("X-RapidAPI-Host", api_url)
 
 	res2, _ := http.DefaultClient.Do(req2)
 
@@ -284,8 +289,8 @@ func main(){
 
 	req3, _ := http.NewRequest("GET", url3, nil)
 
-	req3.Header.Add("X-RapidAPI-Key", "de18451645msh049760fce527e8fp1e555ejsn4eb253213e47")
-	req3.Header.Add("X-RapidAPI-Host", "api-nba-v1.p.rapidapi.com")
+	req3.Header.Add("X-RapidAPI-Key", os.Getenv("API_KEY"))
+	req3.Header.Add("X-RapidAPI-Host", api_url)
 
 	res3, _ := http.DefaultClient.Do(req3)
 
