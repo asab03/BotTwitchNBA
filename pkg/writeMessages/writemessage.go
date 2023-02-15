@@ -5,9 +5,13 @@ import (
 	"fmt"
 	"io"
 	"log"
+	"os"
+
+	"github.com/joho/godotenv"
 )
 
 func WriteMessages(conn io.Writer, source io.Reader){
+	godotenv.Load()
 	msgWritter := bufio.NewReader(source)
 
 	go func(){
@@ -17,7 +21,7 @@ func WriteMessages(conn io.Writer, source io.Reader){
 			if err != nil{
 				log.Fatalln("failed to read the message frome source", err)
 			}
-			fmt.Fprintf(conn, "PRIVMSG #narvalo03: %s\r\n", msg)
+			fmt.Fprintf(conn, "PRIVMSG #%s: %s\r\n",os.Getenv("CHANNEL"), msg)
 		}
 	}()
 

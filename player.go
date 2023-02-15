@@ -345,7 +345,7 @@ func main(){
 				messageData := s[2]
 				
 				if strings.Contains(messageData, playerLastName){
-			        fmt.Fprintf(conn, "PRIVMSG #narvalo03 :@%s à gagner !\r\n", user)
+			        fmt.Fprintf(conn, "PRIVMSG #%s :@%s à gagner !\r\n", os.Getenv("CHANNEL"), user)
 				} else {
                     fmt.Println(msg)
                 }			
