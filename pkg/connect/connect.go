@@ -15,9 +15,9 @@ func Connect() io.ReadWriter{
 
 
     fmt.Fprintf(conn, "PASS oauth:mpim2eer3kkt0lqbom0r9gypiajefn \r\n")
-    fmt.Fprintf(conn, "NICK nbabot \r\n")
-    fmt.Fprintf(conn, "JOIN #narvalo03  \r\n")
-    fmt.Fprintf(conn, "PRIVMSG #narvalo03 :Hello !\r\n")
+    fmt.Fprintf(conn, "NICK BotName \r\n")
+    fmt.Fprintf(conn, "JOIN #channel  \r\n")
+    fmt.Fprintf(conn, "PRIVMSG #channel :Hello !\r\n")
 
 	return conn
 }
