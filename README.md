@@ -1,6 +1,18 @@
+# Avant de lancer l'application
+
+```
+git clone Github.com/asab03/BotTwitchNBA
+```
+se créer un compte sur le site https://rapidapi.com/hub pour pouvoir acceder à l'api
+
+créer un fichier .env à la racine du projet et y stocker la clé API fournis apres l'inscription. 
+
+Dans se fichier .env on retrouve egalement la clé pour l'API twitch, le channel et le nom du bot
+
 # Lancer l'application :
 
-go run .
+```go run .```
+
 
 # Choisir son joueur :
 
