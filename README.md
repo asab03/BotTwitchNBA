@@ -1,6 +1,25 @@
+# Presentation 
+
+L'application a pour objectif de faire deviner à un chat twitch un joueur NBA en fonction de ses lignes de stats de son match de la nuit passée.
+Pour cela, le programme récupère les informations grâce à un api et il affiche les stats du joueur demandé par le streamer.
+
+Par la suite le programme se connecte au chat du stream et écoute les messages des viewers. Dès qu'un utilisateur donne la bonne réponse, le programme envoie un message dans le chat pour désigner le vainqueur.
+
+# Avant de lancer l'application
+
+```
+git clone Github.com/asab03/BotTwitchNBA
+```
+se créer un compte sur le site https://rapidapi.com/hub pour pouvoir acceder à l'api
+
+créer un fichier .env à la racine du projet et y stocker la clé API fournies apres l'inscription. 
+
+Dans se fichier .env on retrouve egalement la clé pour l'API twitch, le channel et le nom du bot
+
 # Lancer l'application :
 
-go run .
+```go run .```
+
 
 # Choisir son joueur :
 
