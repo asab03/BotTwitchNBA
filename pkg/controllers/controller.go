@@ -2,51 +2,63 @@ package controller
 
 import (
 	"encoding/json"
-	"fmt"
+	"io/ioutil"
+	"log"
 	"net/http"
 	"strconv"
 	"twitchbot/nbabot/pkg/models"
 
-	"twitchbot/nbabot/pkg/utils"
-
 	"github.com/gorilla/mux"
 )
 
-//Stats Controller
-var newStats models.MyStat
-
-//Function to get all ruches
-func GetStats(w http.ResponseWriter, r *http.Request){
-    newStats := models.GetStats()
-    res, _ :=json.Marshal(newStats)
-    w.Header().Set("Content-Type", "application/json")
+func StatsIndex(w http.ResponseWriter, r *http.Request) {
+    w.Header().Set("Content-type", "application/json;charset=UTF-8")
     w.WriteHeader(http.StatusOK)
-    w.Write(res)
+  
+    json.NewEncoder(w).Encode(models.GetStats())
 }
-//Function to get one ruche by Id
-func GetStatsById(w http.ResponseWriter, r *http.Request){
-    vars := mux.Vars(r)
-    Id := vars["Id"]
-    ID, err := strconv.ParseInt(Id,0,0)
-    if err != nil{
-        fmt.Println("error while parsing")
+
+func CreateStats(w http.ResponseWriter, r *http.Request) {
+    w.Header().Set("Content-type", "application/json;charset=UTF-8")
+    w.WriteHeader(http.StatusOK)
+  
+    body, err := ioutil.ReadAll(r.Body)
+  
+    if err != nil {
+      log.Fatal(err)
     }
-    statsDetails, _ := models.GetStatsById(ID)
-    res, _ :=json.Marshal(statsDetails)
+  
+    var stat models.MyStat
+  
+    err = json.Unmarshal(body, &stat)
+  
+    if err != nil {
+      log.Fatal(err)
+    }
+  
+    models.NewStats(&stat)
+  
+    json.NewEncoder(w).Encode(stat)
+}
+func GetStats(w http.ResponseWriter, r *http.Request){
+    stats := models.GetStats()
+    res, _ :=json.Marshal(stats)
     w.Header().Set("Content-Type", "application/json")
     w.WriteHeader(http.StatusOK)
     w.Write(res)
 }
-//Function for create ruche
-func CreateStat(w http.ResponseWriter, r *http.Request){
-    CreateStats := &models.MyStat{}
-    utils.ParseBody(r, CreateStats)
-    a := CreateStats.CreateStats()
-    res, _ :=json.Marshal(a)
-    w.Header().Set("Content-Type", "application/json")
+func GetStatsById(w http.ResponseWriter, r *http.Request) {
+    w.Header().Set("Content-type", "application/json;charset=UTF-8")
     w.WriteHeader(http.StatusOK)
-    w.Write(res)
-}
-
-
-
+  
+    vars := mux.Vars(r)
+    id, err := strconv.Atoi(vars["id"])
+  
+    if err != nil {
+      log.Fatal(err)
+    }
+  
+    stat := models.GetStatById(id)
+  
+    json.NewEncoder(w).Encode(stat)
+  }
