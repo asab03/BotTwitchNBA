@@ -1,6 +1,8 @@
 package main
 
 import (
+	"context"
+	"database/sql"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -220,6 +222,7 @@ func (stats *Stats) AddItem(item models.MyStat) []models.MyStat{
 const api_url string = "api-nba-v1.p.rapidapi.com"
 
 func main(){
+	
 
 	godotenv.Load()
 	// Definir le joueur à rechercher
@@ -336,24 +339,34 @@ func main(){
 		fmt.Println("Steals :", rec3.Steals, "recuperations")
 		fmt.Println("Fautes :", rec3.PFouls, "fautes")
 		fmt.Println("Assists :", rec3.Assists, "assists")
+		models.GetStats()
+		dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s",os.Getenv("DBUSER"), os.Getenv("DBPSWD"), os.Getenv("DBHOST"), os.Getenv("DBPORT"), os.Getenv("DB") )
+		db, err := sql.Open("mysql", dsn)
+		if err != nil {
+    		log.Fatalf("impossible to create the connection: %s", err)
+		} else {
+			fmt.Println("connection database ok !!")
+		}
+		defer db.Close()
+		query := "INSERT INTO `my_stats` (`firstname`, `last_name`, `points`, `min`, `tot_reb`, `steals`, `pfouls`, `assist`) VALUES (?, ?, ?, ?, ?, ?, ?, ?)"
+		insertResult, err := db.ExecContext(context.Background(),query, rec3.Player.Firstname, rec3.Player.Lastname, rec3.Points, rec3.Min, rec3.TotReb, rec3.Steals, rec3.PFouls, rec3.Assists)
+		if err != nil {
+    		log.Fatalf("impossible insert stats: %s", err)
+		} else {
+			log.Printf("donnée inserez dans la database %s", insertResult)
+		}
+		
 	}
+	
+
+		
+	//affichage web 
 	//ouvre la connexion API
 	r := mux.NewRouter()
 	routes.RegisterGoRoutes(r)
 	http.Handle("/", r)
 	log.Fatal(http.ListenAndServe("localhost:9012", r))
 
-	//affiche les stats
-
-	for _, rec3 := range result3.Response{
-		statsMvp := models.MyStat{Points: rec3.Points ,  Min: rec3.Min,  TotReb: rec3.TotReb , Steals: rec3.Steals, Pfouls: rec3.PFouls, Assist: rec3.Assists} 
-		stats := []models.MyStat{}
-		box := Stats{stats}
-
-		box.AddItem(statsMvp)
-
-	}
-	
 	
 	//affichage web 
 	
@@ -393,6 +406,7 @@ func main(){
     
 
     wg.Wait()
+	
 
 	//affiche la photo du joueur
 }
