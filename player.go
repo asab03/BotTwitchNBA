@@ -4,18 +4,25 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"os"
 	"strconv"
 	"strings"
 	"sync"
 	"time"
-	parser "twitchbot/nbabot/pkg/Parser"
-	readmsg "twitchbot/nbabot/pkg/ReadMsg"
-	"twitchbot/nbabot/pkg/connect"
-	writemessages "twitchbot/nbabot/pkg/writeMessages"
+	parser "twitchbot/nbabot/pkg/APINBA/Parser"
+	readmsg "twitchbot/nbabot/pkg/APINBA/ReadMsg"
+	"twitchbot/nbabot/pkg/APINBA/connect"
+	writemessages "twitchbot/nbabot/pkg/APINBA/writeMessages"
+	"twitchbot/nbabot/pkg/models"
 
 	"github.com/joho/godotenv"
+
+	"twitchbot/nbabot/pkg/routes"
+
+	"github.com/gorilla/mux"
+	_ "github.com/jinzhu/gorm/dialects/mysql"
 )
 
 type JsonPlayer struct {
@@ -192,6 +199,23 @@ func PrettyPrint(i interface{}) string {
     s, _ := json.MarshalIndent(i, "", "\t")
     return string(s)
 }
+type MyStats struct{
+	Points int
+	Min string
+	TotReb int
+	Steals int
+	Pfouls int
+	Assist int
+}
+
+type Stats struct{
+	Items []models.MyStat
+}
+
+func (stats *Stats) AddItem(item models.MyStat) []models.MyStat{
+	stats.Items = append(stats.Items, item )
+	return stats.Items
+}
 
 const api_url string = "api-nba-v1.p.rapidapi.com"
 
@@ -245,10 +269,10 @@ func main(){
 
 	//recherche du match dans l'api pour obtenir Id
 	t := time.Now()
-	dt :=  time.Now().Local().Format("2006-01-02")
+	//dt :=  time.Now().Local().Format("2006-01-02")
 	
 
-	url2 := "https://api-nba-v1.p.rapidapi.com/games?date=" + dt
+	url2 := "https://api-nba-v1.p.rapidapi.com/games?date=" + "2023-02-17"
 
 	req2, _ := http.NewRequest("GET", url2, nil)
 
@@ -313,17 +337,27 @@ func main(){
 		fmt.Println("Fautes :", rec3.PFouls, "fautes")
 		fmt.Println("Assists :", rec3.Assists, "assists")
 	}
+	//ouvre la connexion API
+	r := mux.NewRouter()
+	routes.RegisterGoRoutes(r)
+	http.Handle("/", r)
+	log.Fatal(http.ListenAndServe("localhost:9012", r))
 
 	//affiche les stats
 
 	for _, rec3 := range result3.Response{
-		fmt.Println("Points :", rec3.Points, "pts")		
-		fmt.Println("Minutes :" , rec3.Min, "min")
-		fmt.Println("Rebonds :" ,rec3.TotReb, "rebonds" )
-		fmt.Println("Steals :", rec3.Steals, "recuperations")
-		fmt.Println("Fautes :", rec3.PFouls, "fautes")
-		fmt.Println("Assists :", rec3.Assists, "assists")
+		statsMvp := models.MyStat{Points: rec3.Points ,  Min: rec3.Min,  TotReb: rec3.TotReb , Steals: rec3.Steals, Pfouls: rec3.PFouls, Assist: rec3.Assists} 
+		stats := []models.MyStat{}
+		box := Stats{stats}
+
+		box.AddItem(statsMvp)
+
 	}
+	
+	
+	//affichage web 
+	
+	
 	//Connection Twitch 
 
 	conn := connect.Connect()
