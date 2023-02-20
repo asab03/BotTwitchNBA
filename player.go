@@ -1,21 +1,30 @@
 package main
 
 import (
+	"context"
+	"database/sql"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"os"
 	"strconv"
 	"strings"
 	"sync"
 	"time"
-	parser "twitchbot/nbabot/pkg/Parser"
-	readmsg "twitchbot/nbabot/pkg/ReadMsg"
-	"twitchbot/nbabot/pkg/connect"
-	writemessages "twitchbot/nbabot/pkg/writeMessages"
+	parser "twitchbot/nbabot/pkg/APINBA/Parser"
+	readmsg "twitchbot/nbabot/pkg/APINBA/ReadMsg"
+	"twitchbot/nbabot/pkg/APINBA/connect"
+	writemessages "twitchbot/nbabot/pkg/APINBA/writeMessages"
+	"twitchbot/nbabot/pkg/models"
 
 	"github.com/joho/godotenv"
+
+	"twitchbot/nbabot/pkg/routes"
+
+	"github.com/gorilla/mux"
+	_ "github.com/jinzhu/gorm/dialects/mysql"
 )
 
 type JsonPlayer struct {
@@ -192,10 +201,28 @@ func PrettyPrint(i interface{}) string {
     s, _ := json.MarshalIndent(i, "", "\t")
     return string(s)
 }
+type MyStats struct{
+	Points int
+	Min string
+	TotReb int
+	Steals int
+	Pfouls int
+	Assist int
+}
+
+type Stats struct{
+	Items []models.MyStat
+}
+
+func (stats *Stats) AddItem(item models.MyStat) []models.MyStat{
+	stats.Items = append(stats.Items, item )
+	return stats.Items
+}
 
 const api_url string = "api-nba-v1.p.rapidapi.com"
 
 func main(){
+	
 
 	godotenv.Load()
 	// Definir le joueur à rechercher
@@ -245,10 +272,10 @@ func main(){
 
 	//recherche du match dans l'api pour obtenir Id
 	t := time.Now()
-	dt :=  time.Now().Local().Format("2006-01-02")
+	//dt :=  time.Now().Local().Format("2006-01-02")
 	
 
-	url2 := "https://api-nba-v1.p.rapidapi.com/games?date=" + dt
+	url2 := "https://api-nba-v1.p.rapidapi.com/games?date=" + "2023-02-17"
 
 	req2, _ := http.NewRequest("GET", url2, nil)
 
@@ -312,18 +339,38 @@ func main(){
 		fmt.Println("Steals :", rec3.Steals, "recuperations")
 		fmt.Println("Fautes :", rec3.PFouls, "fautes")
 		fmt.Println("Assists :", rec3.Assists, "assists")
+		models.GetStats()
+		dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s",os.Getenv("DBUSER"), os.Getenv("DBPSWD"), os.Getenv("DBHOST"), os.Getenv("DBPORT"), os.Getenv("DB") )
+		db, err := sql.Open("mysql", dsn)
+		if err != nil {
+    		log.Fatalf("impossible to create the connection: %s", err)
+		} else {
+			fmt.Println("connection database ok !!")
+		}
+		defer db.Close()
+		query := "INSERT INTO `my_stats` (`firstname`, `last_name`, `points`, `min`, `tot_reb`, `steals`, `pfouls`, `assist`) VALUES (?, ?, ?, ?, ?, ?, ?, ?)"
+		insertResult, err := db.ExecContext(context.Background(),query, rec3.Player.Firstname, rec3.Player.Lastname, rec3.Points, rec3.Min, rec3.TotReb, rec3.Steals, rec3.PFouls, rec3.Assists)
+		if err != nil {
+    		log.Fatalf("impossible insert stats: %s", err)
+		} else {
+			log.Printf("donnée inserez dans la database %s", insertResult)
+		}
+		
 	}
+	
 
-	//affiche les stats
+		
+	//affichage web 
+	//ouvre la connexion API
+	r := mux.NewRouter()
+	routes.RegisterGoRoutes(r)
+	http.Handle("/", r)
+	log.Fatal(http.ListenAndServe("localhost:9012", r))
 
-	for _, rec3 := range result3.Response{
-		fmt.Println("Points :", rec3.Points, "pts")		
-		fmt.Println("Minutes :" , rec3.Min, "min")
-		fmt.Println("Rebonds :" ,rec3.TotReb, "rebonds" )
-		fmt.Println("Steals :", rec3.Steals, "recuperations")
-		fmt.Println("Fautes :", rec3.PFouls, "fautes")
-		fmt.Println("Assists :", rec3.Assists, "assists")
-	}
+	
+	//affichage web 
+	
+	
 	//Connection Twitch 
 
 	conn := connect.Connect()
@@ -359,6 +406,7 @@ func main(){
     
 
     wg.Wait()
+	
 
 	//affiche la photo du joueur
 }
