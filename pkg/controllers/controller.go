@@ -12,13 +12,13 @@ import (
 	"github.com/gorilla/mux"
 )
 
-//Ruche Controller
-var newRucher models.MyStat
+//Stats Controller
+var newStats models.MyStat
 
 //Function to get all ruches
 func GetStats(w http.ResponseWriter, r *http.Request){
-    newRucher := models.GetStats()
-    res, _ :=json.Marshal(newRucher)
+    newStats := models.GetStats()
+    res, _ :=json.Marshal(newStats)
     w.Header().Set("Content-Type", "application/json")
     w.WriteHeader(http.StatusOK)
     w.Write(res)
@@ -39,9 +39,9 @@ func GetStatsById(w http.ResponseWriter, r *http.Request){
 }
 //Function for create ruche
 func CreateStat(w http.ResponseWriter, r *http.Request){
-    CreateStat := &models.MyStat{}
-    utils.ParseBody(r, CreateStat)
-    a := CreateStat.CreateStats()
+    CreateStats := &models.MyStat{}
+    utils.ParseBody(r, CreateStats)
+    a := CreateStats.CreateStats()
     res, _ :=json.Marshal(a)
     w.Header().Set("Content-Type", "application/json")
     w.WriteHeader(http.StatusOK)

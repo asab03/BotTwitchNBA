@@ -10,12 +10,14 @@ var db *gorm.DB
 
 type MyStat struct{
 	gorm.Model
-	Points int `gorm:"" json:"points"`
-	Min string `gorm:"" json:"minutes"`
-	TotReb int `gorm:"" json:"rebonds"`
-	Steals int `gorm:"" json:"steals"`
-	Pfouls int `gorm:"" json:"fautes"`
-	Assist int `gorm:"" json:"assists"`
+	Firstname 	string 	`gorm:"" json:"firstname"`
+	LastName 	string 	`gorm:"" json:"lastname"`
+	Points 		int 	`gorm:"" json:"points"`
+	Min 		string 	`gorm:"" json:"minutes"`
+	TotReb 		int 	`gorm:"" json:"rebonds"`
+	Steals 		int 	`gorm:"" json:"steals"`
+	Pfouls 		int 	`gorm:"" json:"fautes"`
+	Assist 		int 	`gorm:"" json:"assists"`
 }
 
 //migrate table to db
@@ -34,8 +36,8 @@ func (a *MyStat) CreateStats() *MyStat{
 
 //func get All
 func GetStats() []MyStat{
-	var Ruches []MyStat
-	db.Find(&Ruches)
+	var Stats []MyStat
+	db.Find(&Stats)
 	return []MyStat{}
 }
 
