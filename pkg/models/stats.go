@@ -41,15 +41,15 @@ func NewStats(s *MyStat) {
   func GetStatById(id int) *MyStat {
 	var stat MyStat
 	
-	_, err := config.GetDB().Exec("SELECT * FROM `my_stats` WHERE id = ?;", id)
+	row:= config.GetDB().QueryRow("SELECT * FROM `my_stats` WHERE id = ?", id)
+	err := row.Scan(&stat.Id, &stat.Firstname, &stat.LastName, &stat.Points, &stat.Min, &stat.TotReb, &stat.Steals, &stat.Pfouls, &stat.Assist)
 	
-	
-  
 	if err != nil {
 	  log.Println("erreur dans le modele", err)
 	}
   
 	return &stat
+	
   }
 
   func GetStats() *Stats {
