@@ -24,9 +24,6 @@ type Stats []MyStat
 //migrate table to db
 
 func NewStats(s *MyStat) {
-	/*if s == nil {
-	  log.Fatal(s)
-	}*/
 	
 	res, err := config.GetDB().Exec("INSERT INTO `my_stats`(  `firstname`, `last_name`, `points`, `min`, `tot_reb`, `steals`, `pfouls`, `assist`) VALUES (?,?,?,?,?,?,?,?)",
 	 s.Firstname, s.LastName, s.Points, s.Min, s.TotReb,s.Steals, s.Pfouls, s.Assist)
