@@ -1,48 +1,80 @@
 package models
 
 import (
+	"fmt"
+	"log"
 	"twitchbot/nbabot/pkg/config"
-
-	"github.com/jinzhu/gorm"
 )
 
-var db *gorm.DB
+
 
 type MyStat struct{
-	gorm.Model
-	Firstname 	string 	`gorm:"" json:"firstname"`
-	LastName 	string 	`gorm:"" json:"lastname"`
-	Points 		int 	`gorm:"" json:"points"`
-	Min 		string 	`gorm:"" json:"minutes"`
-	TotReb 		int 	`gorm:"" json:"rebonds"`
-	Steals 		int 	`gorm:"" json:"steals"`
-	Pfouls 		int 	`gorm:"" json:"fautes"`
-	Assist 		int 	`gorm:"" json:"assists"`
+	Id			int		`json:"id"`
+	Firstname 	string 	`json:"firstname"`
+	LastName 	string 	`json:"last_name"`
+	Points 		int 	`json:"points"`
+	Min 		string 	`json:"minutes"`
+	TotReb 		int 	`json:"rebonds"`
+	Steals 		int 	`json:"steals"`
+	Pfouls 		int 	`json:"fautes"`
+	Assist 		int 	`json:"assists"`
 }
 
+type Stats []MyStat
 //migrate table to db
-func init(){
-	config.Connect()
-	db = config.GetDB()
-	db.AutoMigrate(&MyStat{})
-}
 
-//func create
-func (a *MyStat) CreateStats() *MyStat{
-	db.NewRecord(a)
-	db.Create(&a)
-	return a
-}
+func NewStats(s *MyStat) {
+	/*if s == nil {
+	  log.Fatal(s)
+	}*/
+	
+	res, err := config.GetDB().Exec("INSERT INTO `my_stats`(  `firstname`, `last_name`, `points`, `min`, `tot_reb`, `steals`, `pfouls`, `assist`) VALUES (?,?,?,?,?,?,?,?)",
+	 s.Firstname, s.LastName, s.Points, s.Min, s.TotReb,s.Steals, s.Pfouls, s.Assist)
+	
+	fmt.Println(res)
+	if err!= nil {
+	  log.Println(err)
+	}
+  }
 
-//func get All
-func GetStats() []MyStat{
-	var Stats []MyStat
-	db.Find(&Stats)
-	return []MyStat{}
-}
 
-func GetStatsById(Id int64) (*MyStat, *gorm.DB){
-	var getStats MyStat
-	db:= db.Where("ID=?", Id).Find(&getStats)
-	return &getStats, db
-}
+  func GetStatById(id int) *MyStat {
+	var stat MyStat
+	
+	_, err := config.GetDB().Exec("SELECT * FROM `my_stats` WHERE id = ?;", id)
+	
+	
+  
+	if err != nil {
+	  log.Println("erreur dans le modele", err)
+	}
+  
+	return &stat
+  }
+
+  func GetStats() *Stats {
+	var stats Stats
+  
+	rows, err := config.GetDB().Query("SELECT * FROM `my_stats`")
+  
+	if err != nil {
+	  log.Fatal(err)
+	}
+  
+	// Close rows after all readed
+	defer rows.Close()
+  
+	for rows.Next() {
+	  var s MyStat
+  
+	  err := rows.Scan(&s.Id, &s.Firstname, &s.LastName, &s.Points, &s.Min, &s.TotReb, &s.Steals, &s.Pfouls, &s.Assist)
+  
+	  if err != nil {
+		log.Fatal(err)
+	  }
+  
+	  stats = append(stats, s)
+	}
+  
+	return &stats
+  }
