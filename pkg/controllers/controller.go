@@ -52,17 +52,7 @@ func GetStats(w http.ResponseWriter, r *http.Request){
 }
 
 func GetStatsById(w http.ResponseWriter, r *http.Request) {
-  /*vars := mux.Vars(r)
-  Id := vars["Id"]
-  ID, err := strconv.ParseInt(Id,0,0)
-  if err != nil{
-      fmt.Printf("error while parsing : %s", err)
-  }
-  statsDetails:= models.GetStatById(ID)
-  res, _ :=json.Marshal(statsDetails)
-  w.Header().Set("Content-Type", "application/json")
-  w.WriteHeader(http.StatusOK)
-  w.Write(res)*/
+ 
   w.Header().Set("Content-type", "application/json;charset=UTF-8")
   w.WriteHeader(http.StatusOK)
 
