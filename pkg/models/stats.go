@@ -1,6 +1,7 @@
 package models
 
 import (
+	"fmt"
 	"log"
 	"twitchbot/nbabot/pkg/config"
 )
@@ -23,26 +24,29 @@ type Stats []MyStat
 //migrate table to db
 
 func NewStats(s *MyStat) {
-	if s == nil {
+	/*if s == nil {
 	  log.Fatal(s)
-	}
+	}*/
 	
-	err := config.GetDB().QueryRow("INSERT INTO `my_stats`( `firstname`, `last_name`, `points`, `min`, `tot_reb`, `steals`, `pfouls`, `assist`) VALUES (?,?,?,?,?,?,?,?)", s.Firstname, s.LastName, s.Points, s.Min, s.TotReb,s.Steals, s.Pfouls,s.Assist).Scan(&s.Id)
-  
-	if err != nil {
-	  log.Fatal(err)
+	res, err := config.GetDB().Exec("INSERT INTO `my_stats`(  `firstname`, `last_name`, `points`, `min`, `tot_reb`, `steals`, `pfouls`, `assist`) VALUES (?,?,?,?,?,?,?,?)",
+	 s.Firstname, s.LastName, s.Points, s.Min, s.TotReb,s.Steals, s.Pfouls, s.Assist)
+	
+	fmt.Println(res)
+	if err!= nil {
+	  log.Println(err)
 	}
   }
 
 
   func GetStatById(id int) *MyStat {
 	var stat MyStat
-  
-	row := config.GetDB().QueryRow("SELECT * FROM `my_stats` WHERE id = ?", id)
-	err := row.Scan(&stat.Id, &stat.Firstname, &stat.LastName, &stat.Points, &stat.Min, &stat.TotReb, &stat.Steals, &stat.Pfouls, &stat.Assist)
+	
+	_, err := config.GetDB().Exec("SELECT * FROM `my_stats` WHERE id = ?;", id)
+	
+	
   
 	if err != nil {
-	  log.Fatal(err)
+	  log.Println("erreur dans le modele", err)
 	}
   
 	return &stat
