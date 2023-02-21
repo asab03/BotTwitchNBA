@@ -244,9 +244,6 @@ func main(){
 	defer res.Body.Close()
 	body, _ := ioutil.ReadAll(res.Body)
 
-	//fmt.Println(res)
-	//fmt.Println(string(body))
-
 	var result JsonPlayer
     if err := json.Unmarshal(body, &result); err != nil { 
         fmt.Println("Can not unmarshal JSON")
@@ -284,9 +281,7 @@ func main(){
 	defer res2.Body.Close()
 	body2, _ := ioutil.ReadAll(res2.Body)
 
-	//fmt.Println(res2)
-	//fmt.Println(string(body2))
-
+	
 	var result2 JsonMatchOfTheDay
     if err2 := json.Unmarshal(body2, &result2); err2 != nil { 
         fmt.Println("Can not unmarshal JSON")
@@ -345,17 +340,14 @@ func main(){
 		
 		models.NewStats(&stats)
 		
+		
 	}
 	
-
 	
-  	router := routes.InitializeRouter()
+	router := routes.InitializeRouter()
 	log.Fatal(http.ListenAndServe(":9013", router))
 	
-	
-
-	
-	//affichage web 
+	//affichage web via React
 	
 	
 	//Connection Twitch 
