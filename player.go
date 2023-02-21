@@ -339,7 +339,11 @@ func main(){
 		fmt.Println("Fautes :", rec3.PFouls, "fautes")
 		fmt.Println("Assists :", rec3.Assists, "assists")
 		
-		models.NewStats(&models.MyStat{ Firstname: rec3.Player.Firstname, LastName: rec3.Player.Lastname, Points: rec3.Points, Min: rec3.Min, TotReb: rec3.TotReb, Steals: rec3.Steals, Pfouls: rec3.PFouls, Assist: rec3.Assists })
+		
+
+		stats := models.MyStat{ Firstname: rec3.Player.Firstname, LastName: rec3.Player.Lastname, Points: rec3.Points, Min: rec3.Min, TotReb: rec3.TotReb, Steals: rec3.Steals, Pfouls: rec3.PFouls, Assist: rec3.Assists }
+		
+		models.NewStats(&stats)
 		
 	}
 	

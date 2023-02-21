@@ -9,12 +9,13 @@ import (
 //Route table
 
 func InitializeRouter() *mux.Router {
-	// StrictSlash is true => redirect /cars/ to /cars
-	router := mux.NewRouter().StrictSlash(true)
+	
+	router := mux.NewRouter()
   
-	router.Methods("GET").Path("/stats").HandlerFunc(controller.GetStats)
-	router.Methods("POST").Path("/stats").Name("Create").HandlerFunc(controller.CreateStats)
-	router.Methods("GET").Path("/stats/{id}").Name("Show").HandlerFunc(controller.GetStatsById)
+	router.HandleFunc("/stats", controller.GetStats).Methods("GET")
+	router.HandleFunc("/stats/{id}", controller.GetStatsById).Methods("GET")
+	router.HandleFunc("/stats", controller.CreateStats).Methods("POST")
+	
 	
 	return router
   }
