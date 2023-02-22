@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"os"
 	"strconv"
@@ -343,9 +342,9 @@ func main(){
 		
 	}
 	
-	
 	router := routes.InitializeRouter()
-	log.Fatal(http.ListenAndServe(":9013", router))
+	
+	
 	
 	//affichage web via React
 	
@@ -356,11 +355,18 @@ func main(){
     msgsChan := readmsg.ReadMessages(conn)
     parsedChan := parser.Parse(msgsChan)
     writemessages.WriteMessages(conn, os.Stdin)
+	
 
 	//ecoute le chat et affiche le viewer gagnant
 
 	wg:= sync.WaitGroup{}
-    wg.Add(1)
+    wg.Add(2)
+
+	go func(){
+		http.ListenAndServe(":9013", router)
+		wg.Done()
+	}()
+	
 
     go func(){
         for msg := range parsedChan{
@@ -381,11 +387,12 @@ func main(){
             
             
         }
+		
     }()
     
 
     wg.Wait()
 	
-
+	
 	//affiche la photo du joueur
 }
